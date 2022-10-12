@@ -48,7 +48,19 @@ app.get("/api/annotate", (req, res) => {
         var start = parseInt(bytes[0], 10);
         var total = data.Contents[0].Size;
         var end = bytes[1] ? parseInt(bytes[1], 10) : total - 1;
+
         var chunksize = end - start + 1;
+
+        if (start !== undefined && end !== undefined) {
+          chunksize = end + 1 - start;
+        } else if (start !== undefined) {
+          chunksize = total - start;
+        } else if (end !== undefined) {
+          chunksize = end + 1;
+        } else {
+          chunksize = total;
+        }
+
         console.log("declared range, bytes, start, total, end, chunksize vars");
 
         res.writeHead(206, {
@@ -59,8 +71,8 @@ app.get("/api/annotate", (req, res) => {
           "Last-Modified": data.Contents[0].LastModified,
           "Content-Type": mimetype,
           "Content-Disposition": "inline",
-          "Connection": "keep-alive",
-          'ETag' : data.Contents[0].ETag
+          Connection: "keep-alive",
+          ETag: data.Contents[0].ETag,
         });
         console.log("wrote header");
         s3.getObject({
