@@ -7,7 +7,7 @@ const app = express();
 app.use("/", express.static("public"));
 app.use(cors());
 
-const filePath = "./Firstview_high.mp4";
+const filePath = "./video.mp4";
 
 AWS.config.update({
   region: "us-east-2",
