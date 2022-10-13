@@ -108,7 +108,7 @@ app.get("/works-in-chrome-and-safari", (req, res) => {
   // Listing 3.
   var s3 = new AWS.S3();
   const mimetype = "video/mp4";
-  const file = "1662639479008.mp4";
+  const file = "Firstview_high.mp4";
   const cache = 0;
   console.log("const mimetype, file, and cache declared");
 
