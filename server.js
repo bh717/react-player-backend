@@ -8,6 +8,7 @@ app.use("/", express.static("public"));
 app.use(cors());
 
 const filePath = "./video.mp4";
+const filename = "1662639479008.mp4";
 
 AWS.config.update({
   region: "us-east-2",
@@ -26,7 +27,7 @@ app.get("/api/annotate", (req, res) => {
   var s3 = new AWS.S3();
   const mimetype = "video/mp4";
   // const file = "https://elasticbeanstalk-us-east-2-045749248414.s3.amazonaws.com/1665446699465";
-  const file = "1665446699465";
+  const file = "1662639479008.mp4";
   const cache = 0;
   console.log("const mimetype, file, and cache declared");
   // s3.listObjectsV2()
@@ -287,6 +288,7 @@ app.get('/works-in-chrome-and-safari1', (req, res) => {
       }
   });
 });
+
 
 const PORT = process.env.PORT || 3000;
 
