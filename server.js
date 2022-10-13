@@ -105,10 +105,14 @@ app.get("/api/annotate", (req, res) => {
   );
 });
 
-
-
 app.get("/works-in-chrome-and-safari", (req, res) => {
   // Listing 3.
+  var s3 = new AWS.S3();
+  const mimetype = "video/mp4";
+  const file = "1665446699465";
+  const cache = 0;
+  console.log("const mimetype, file, and cache declared");
+
   const options = {};
 
   let start;
@@ -134,60 +138,68 @@ app.get("/works-in-chrome-and-safari", (req, res) => {
   }
 
   res.setHeader("content-type", "video/mp4");
-
-  fs.stat(filePath, (err, stat) => {
-    if (err) {
-      console.error(`File stat error for ${filePath}.`);
-      console.error(err);
-      res.sendStatus(500);
-      return;
-    }
-
-    let contentLength = stat.size;
-
-    // Listing 4.
-    if (req.method === "HEAD") {
-      res.statusCode = 200;
-      res.setHeader("accept-ranges", "bytes");
-      res.setHeader("content-length", contentLength);
-      res.end();
-    } else {
-      // Listing 5.
-      let retrievedLength;
-      if (start !== undefined && end !== undefined) {
-        retrievedLength = end + 1 - start;
-      } else if (start !== undefined) {
-        retrievedLength = contentLength - start;
-      } else if (end !== undefined) {
-        retrievedLength = end + 1;
-      } else {
-        retrievedLength = contentLength;
-      }
-
-      // Listing 6.
-      res.statusCode = start !== undefined || end !== undefined ? 206 : 200;
-
-      res.setHeader("content-length", retrievedLength);
-
-      if (range !== undefined) {
-        res.setHeader(
-          "content-range",
-          `bytes ${start || 0}-${end || contentLength - 1}/${contentLength}`
-        );
-        res.setHeader("accept-ranges", "bytes");
-      }
-
-      // Listing 7.
-      const fileStream = fs.createReadStream(filePath, options);
-      fileStream.on("error", (error) => {
-        console.log(`Error reading file ${filePath}.`);
-        console.log(error);
+  console.log("Reach to pass");
+  s3.listObjectsV2(
+    {
+      Bucket: "elasticbeanstalk-us-east-2-045749248414",
+      MaxKeys: 1,
+      Prefix: file,
+    },
+    function (err, data) {
+      if (err) {
+        console.error(`File stat error for ${filePath}.`);
+        console.error(err);
         res.sendStatus(500);
-      });
+        return;
+      }
 
-      fileStream.pipe(res);
+      console.log("Reach to Size");
+
+      let contentLength = data.Contents[0].Size;
+
+      // Listing 4.
+      if (req.method === "HEAD") {
+        res.statusCode = 200;
+        res.setHeader("accept-ranges", "bytes");
+        res.setHeader("content-length", contentLength);
+        res.end();
+      } else {
+        // Listing 5.
+        let retrievedLength;
+        if (start !== undefined && end !== undefined) {
+          retrievedLength = end + 1 - start;
+        } else if (start !== undefined) {
+          retrievedLength = contentLength - start;
+        } else if (end !== undefined) {
+          retrievedLength = end + 1;
+        } else {
+          retrievedLength = contentLength;
+        }
+
+        // Listing 6.
+        res.statusCode = start !== undefined || end !== undefined ? 206 : 200;
+
+        res.setHeader("content-length", retrievedLength);
+
+        if (range !== undefined) {
+          res.setHeader(
+            "content-range",
+            `bytes ${start || 0}-${end || contentLength - 1}/${contentLength}`
+          );
+          res.setHeader("accept-ranges", "bytes");
+        }
+
+        // Listing 7.
+        s3.getObject({
+          Bucket: "elasticbeanstalk-us-east-2-045749248414",
+          Key: file,
+          Range: range,
+        })
+          .createReadStream()
+          .pipe(res);
+      }
     }
-  });
+  );
 });
 
 const PORT = process.env.PORT || 3000;
