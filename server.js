@@ -1,11 +1,13 @@
 import express from "express";
 import cors from "cors";
 import AWS from "aws-sdk";
-
+import fs from "fs";
 const app = express();
 
 app.use("/", express.static("public"));
 app.use(cors());
+
+const filePath = "./Firstview_high.mp4";
 
 AWS.config.update({
   region: "us-east-2",
@@ -103,7 +105,7 @@ app.get("/api/annotate", (req, res) => {
   );
 });
 
-const filePath = "https://elasticbeanstalk-us-east-2-045749248414.s3.amazonaws.com/1665446699465";
+
 
 app.get("/works-in-chrome-and-safari", (req, res) => {
   // Listing 3.
